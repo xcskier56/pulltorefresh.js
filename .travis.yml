@@ -6,14 +6,14 @@ sudo: false
 
 cache:
   directories:
-    - $HOME/.yarn
-    - $HOME/.yarn-cache
-    - $HOME/.cache # includes bowers cache
+    - "$HOME/.npm"
+    - "$HOME/.cache"
 before_install:
-  - curl -o- -L https://yarnpkg.com/install.sh | bash
-  - "phantomjs --version"
+  - npm install -g bower
+  - npm install -g testem
 
 install:
-  - "yarn global add bower"
-  - "yarn install --prefer-offline"
-  - "bower install"
+  - npm install
+  - bower install
+script:
+  - npm test
