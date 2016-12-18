@@ -38,15 +38,21 @@ var _defaults = {
   resistanceFunction: function (t) { return Math.min(1, t / 2.5); },
 };
 
-var pullStartY = null;
-var pullMoveY = null;
-var dist = 0;
-var distResisted = 0;
 
-var _state = 'pending';
-var _setup = false;
-var _enable = false;
-var _timeout;
+
+var currentStateDefaults = {
+  pullStartY: null,
+  pullMoveY: null,
+  dist: 0,
+  distResisted: 0,
+
+  _state: 'pending',
+  _setup: false,
+  _enable: false,
+  _timeout: null,
+};
+
+var currentState = {};
 
 function _update() {
   var classPrefix = _SETTINGS.classPrefix;
@@ -60,21 +66,21 @@ function _update() {
   var iconEl = ptrElement.querySelector(("." + classPrefix + "icon"));
   var textEl = ptrElement.querySelector(("." + classPrefix + "text"));
 
-  if (_state === 'refreshing') {
+  if (currentState._state === 'refreshing') {
     iconEl.innerHTML = iconRefreshing;
   } else {
     iconEl.innerHTML = iconArrow;
   }
 
-  if (_state === 'releasing') {
+  if (currentState._state === 'releasing') {
     textEl.innerHTML = instructionsReleaseToRefresh;
   }
 
-  if (_state === 'pulling' || _state === 'pending') {
+  if (currentState._state === 'pulling' || currentState._state === 'pending') {
     textEl.innerHTML = instructionsPullToRefresh;
   }
 
-  if (_state === 'refreshing') {
+  if (currentState._state === 'refreshing') {
     textEl.innerHTML = instructionsRefreshing;
   }
 }
@@ -88,24 +94,24 @@ function _setupEvents() {
     ptrElement.classList.remove((classPrefix + "refresh"));
     ptrElement.style[cssProp] = '0px';
 
-    _state = 'pending';
+    currentState._state = 'pending';
   }
 
   function _onTouchStart(e) {
     var triggerElement = _SETTINGS.triggerElement;
 
     if (!window.scrollY) {
-      pullStartY = e.touches[0].screenY;
+      currentState.pullStartY = e.touches[0].screenY;
     }
 
-    if (_state !== 'pending') {
+    if (currentState._state !== 'pending') {
       return;
     }
 
-    clearTimeout(_timeout);
+    clearTimeout(currentState._timeout);
 
-    _enable = triggerElement.contains(e.target);
-    _state = 'pending';
+    currentState._enable = triggerElement.contains(e.target);
+    currentState._state = 'pending';
     _update();
   }
 
@@ -117,49 +123,49 @@ function _setupEvents() {
     var cssProp = _SETTINGS.cssProp;
     var classPrefix = _SETTINGS.classPrefix;
 
-    if (!pullStartY) {
+    if (!currentState.pullStartY) {
       if (!window.scrollY) {
-        pullStartY = e.touches[0].screenY;
+        currentState.pullStartY = e.touches[0].screenY;
       }
     } else {
-      pullMoveY = e.touches[0].screenY;
+      currentState.pullMoveY = e.touches[0].screenY;
     }
 
-    if (!_enable || _state === 'refreshing') {
-      if (!window.scrollY && pullStartY < pullMoveY) {
+    if (!currentState._enable || currentState._state === 'refreshing') {
+      if (!window.scrollY && currentState.pullStartY < currentState.pullMoveY) {
         e.preventDefault();
       }
 
       return;
     }
 
-    if (_state === 'pending') {
+    if (currentState._state === 'pending') {
       ptrElement.classList.add((classPrefix + "pull"));
-      _state = 'pulling';
+      currentState._state = 'pulling';
       _update();
     }
 
-    if (pullStartY && pullMoveY) {
-      dist = pullMoveY - pullStartY;
+    if (currentState.pullStartY && currentState.pullMoveY) {
+      currentState.dist = currentState.pullMoveY - currentState.pullStartY;
     }
 
-    if (dist > 0) {
+    if (currentState.dist > 0) {
       e.preventDefault();
 
-      ptrElement.style[cssProp] = distResisted + "px";
+      ptrElement.style[cssProp] = (currentState.distResisted) + "px";
 
-      distResisted = resistanceFunction(dist / distThreshold)
+      currentState.distResisted = resistanceFunction(currentState.dist / distThreshold)
         * Math.min(distMax, dist);
 
-      if (_state === 'pulling' && distResisted > distThreshold) {
+      if (currentState._state === 'pulling' && currentState.distResisted > distThreshold) {
         ptrElement.classList.add((classPrefix + "release"));
-        _state = 'releasing';
+        currentState._state = 'releasing';
         _update();
       }
 
-      if (_state === 'releasing' && distResisted < distThreshold) {
+      if (currentState._state === 'releasing' && currentState.distResisted < distThreshold) {
         ptrElement.classList.remove((classPrefix + "release"));
-        _state = 'pulling';
+        currentState._state = 'pulling';
         _update();
       }
     }
@@ -174,13 +180,13 @@ function _setupEvents() {
     var cssProp = _SETTINGS.cssProp;
     var classPrefix = _SETTINGS.classPrefix;
 
-    if (_state === 'releasing' && distResisted > distThreshold) {
-      _state = 'refreshing';
+    if (currentState._state === 'releasing' && currentState.distResisted > distThreshold) {
+      currentState._state = 'refreshing';
 
       ptrElement.style[cssProp] = distReload + "px";
       ptrElement.classList.add((classPrefix + "refresh"));
 
-      _timeout = setTimeout(function () {
+      currentState._timeout = setTimeout(function () {
         var retval = onRefresh(onReset);
 
         if (retval && typeof retval.then === 'function') {
@@ -192,13 +198,13 @@ function _setupEvents() {
         }
       }, refreshTimeout);
     } else {
-      if (_state === 'refreshing') {
+      if (currentState._state === 'refreshing') {
         return;
       }
 
       ptrElement.style[cssProp] = '0px';
 
-      _state = 'pending';
+      currentState._state = 'pending';
     }
 
     _update();
@@ -206,8 +212,8 @@ function _setupEvents() {
     ptrElement.classList.remove((classPrefix + "release"));
     ptrElement.classList.remove((classPrefix + "pull"));
 
-    pullStartY = pullMoveY = null;
-    dist = distResisted = 0;
+    currentState.pullStartY = currentState.pullMoveY = null;
+    dist = currentState.distResisted = 0;
   }
 
   window.addEventListener('touchend', _onTouchEnd);
@@ -276,8 +282,14 @@ var pulltorefresh = {
     if ( options === void 0 ) options = {};
 
     var handlers;
+    // Reset all state each time calling init;
     Object.keys(_defaults).forEach(function (key) {
       _SETTINGS[key] = options[key] || _defaults[key];
+    });
+
+    // Reset all state each time calling init;
+    Object.keys(currentStateDefaults).forEach(function (key) {
+      currentState[key] = currentStateDefaults[key];
     });
 
     if (typeof _SETTINGS.mainElement === 'string') {
@@ -292,9 +304,9 @@ var pulltorefresh = {
       _SETTINGS.triggerElement = document.querySelector(_SETTINGS.triggerElement);
     }
 
-    if (!_setup) {
+    if (!currentState._setup) {
       handlers = _setupEvents();
-      _setup = true;
+      currentState._setup = true;
     }
 
     var ref = _run();
@@ -302,6 +314,9 @@ var pulltorefresh = {
     var ptrElement = ref.ptrElement;
 
     return {
+      handlers: handlers,
+      settings: _SETTINGS,
+      currentState: currentState,
       destroy: function destroy() {
         // Teardown event listeners
         window.removeEventListener('touchstart', handlers.onTouchStart);
@@ -313,7 +328,7 @@ var pulltorefresh = {
         ptrElement.parentNode.removeChild(ptrElement);
 
         // Enable setupEvents to run again
-        _setup = false;
+        currentState = {};
 
         // null object references
         handlers = null;

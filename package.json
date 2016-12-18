@@ -20,7 +20,7 @@
       "**/*.css:{filepath/1}/{filename}.css",
       "**/*.html:{filepath/1}/{filename}.html",
       "**/src/*.js:{filepath/1}/dist/{filename}.js",
-      "**/tests/tests.js:/tests/{filename}.js",
+      "**/tests/*.js:/tests/{filename}.js",
       "**/tests/index.html:/tests/{filename}.html"
     ],
     "filter": [

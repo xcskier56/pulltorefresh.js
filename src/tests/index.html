@@ -5,7 +5,9 @@
     <script src="/bower_components/qunit/qunit/qunit.js"></script>
     <script src="/testem.js"></script>
     <script src="../dist/pulltorefresh.js"></script>
-    <script src="tests.js"></script>
+    <script src="setup-tests.js"></script>
+    <script src="on-touch-start-tests.js"></script>
+    <script src="on-touch-move-tests.js"></script>
 
     <link rel="stylesheet" href="/bower_components/qunit/qunit/qunit.css">
 </head>
@@ -14,6 +16,10 @@
     <div id="qunit-fixture"></div>
 
     <div id="ptr-test-container">
-        <div id="ptr-trigger-element"></div>
+        <div id="ptr-trigger-element">
+            <div id='touch-element'></div>
+        </div>
     </div>
+
+    <div id='non-child'></div>
 </body>
