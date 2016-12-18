@@ -148,7 +148,7 @@ function _setupEvents() {
       ptrElement.style[cssProp] = `${currentState.distResisted}px`;
 
       currentState.distResisted = resistanceFunction(currentState.dist / distThreshold)
-        * Math.min(distMax, dist);
+        * Math.min(distMax, currentState.dist);
 
       if (currentState._state === 'pulling' && currentState.distResisted > distThreshold) {
         ptrElement.classList.add(`${classPrefix}release`);
