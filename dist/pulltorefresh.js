@@ -213,7 +213,7 @@ function _setupEvents() {
     ptrElement.classList.remove((classPrefix + "pull"));
 
     currentState.pullStartY = currentState.pullMoveY = null;
-    dist = currentState.distResisted = 0;
+    currentState.dist = currentState.distResisted = 0;
   }
 
   window.addEventListener('touchend', _onTouchEnd);
