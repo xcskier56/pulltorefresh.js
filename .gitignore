@@ -4,3 +4,6 @@ bower_components
 
 tests/tests.js
 tests/index.html
+
+prod/demos
+prod/tests

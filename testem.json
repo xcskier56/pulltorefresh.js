@@ -1,5 +1,5 @@
 {
-  "before_tests": "tarima -f",
+  "before_tests": "tarima -f --globals env='dev'",
   "test_page": "tests/index.html",
   "framework": "qunit",
   "src_files": [

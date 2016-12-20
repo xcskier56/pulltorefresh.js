@@ -1,0 +1,4 @@
+{
+  "dest": "./prod",
+  "cacheFile": "prod/build.json"
+}

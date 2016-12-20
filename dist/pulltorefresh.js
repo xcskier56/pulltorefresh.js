@@ -11,10 +11,11 @@ var _ptrStyles = function(){return ".__PREFIX__ptr {\n  box-shadow: inset 0 -3px
 /*
 */
 
+var env = "dev";
+
 /* eslint-disable import/no-unresolved */
 
 var _SETTINGS = {};
-
 var _defaults = {
   distThreshold: 60,
   distMax: 80,
@@ -38,8 +39,7 @@ var _defaults = {
   resistanceFunction: function (t) { return Math.min(1, t / 2.5); },
 };
 
-
-
+var currentState = {};
 var currentStateDefaults = {
   pullStartY: null,
   pullMoveY: null,
@@ -51,8 +51,6 @@ var currentStateDefaults = {
   _enable: false,
   _timeout: null,
 };
-
-var currentState = {};
 
 function _update() {
   var classPrefix = _SETTINGS.classPrefix;
@@ -313,30 +311,34 @@ var pulltorefresh = {
     var styleNode = ref.styleNode;
     var ptrElement = ref.ptrElement;
 
-    return {
-      handlers: handlers,
-      settings: _SETTINGS,
-      currentState: currentState,
-      destroy: function destroy() {
-        // Teardown event listeners
-        window.removeEventListener('touchstart', handlers.onTouchStart);
-        window.removeEventListener('touchend', handlers.onTouchEnd);
-        window.removeEventListener('touchmove', handlers.onTouchMove);
+    var toReturn = {};
+    if (env === 'dev' || env === 'test') {
+      toReturn.handlers = handlers;
+      toReturn.settings = _SETTINGS;
+      toReturn.currentState = currentState;
+    }
 
-        // Remove ptr element and style tag
-        styleNode.parentNode.removeChild(styleNode);
-        ptrElement.parentNode.removeChild(ptrElement);
+    toReturn.destroy = function destroy() {
+      // Teardown event listeners
+      window.removeEventListener('touchstart', handlers.onTouchStart);
+      window.removeEventListener('touchend', handlers.onTouchEnd);
+      window.removeEventListener('touchmove', handlers.onTouchMove);
 
-        // Enable setupEvents to run again
-        currentState = {};
+      // Remove ptr element and style tag
+      styleNode.parentNode.removeChild(styleNode);
+      ptrElement.parentNode.removeChild(ptrElement);
 
-        // null object references
-        handlers = null;
-        styleNode = null;
-        ptrElement = null;
-        _SETTINGS = {};
-      },
+      // Enable setupEvents to run again
+      currentState = {};
+
+      // null object references
+      handlers = null;
+      styleNode = null;
+      ptrElement = null;
+      _SETTINGS = {};
     };
+
+    return toReturn;
   },
 };
 

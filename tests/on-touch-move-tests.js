@@ -1,10 +1,10 @@
+
+var this$1 = this;
 var test = QUnit.test;
 var module = QUnit.module;
 
-module( "_onTouchMove", function( hooks ) {
-  var this$1 = this;
-
-  hooks.beforeEach(function (assert) {
+module('_onTouchMove', function (hooks) {
+  hooks.beforeEach(function () {
     this$1.ptrResult = PullToRefresh.init({
       mainElement: '#ptr-trigger-element',
       triggerElement: '#ptr-trigger-element',
@@ -19,7 +19,7 @@ module( "_onTouchMove", function( hooks ) {
     this$1.currentState._enable = true;
   });
 
-  hooks.afterEach(function (assert) {
+  hooks.afterEach(function () {
     this$1.ptrResult.destroy();
 
     this$1.ptrResult = null;
@@ -30,9 +30,9 @@ module( "_onTouchMove", function( hooks ) {
 
   test('first touchmove sets pullStartY', function (assert) {
     var moveEvent1 = {
-      touches: [{screenY: 10}],
-      preventDefault: function() { return true; }
-    }
+      touches: [{ screenY: 10 }],
+      preventDefault: function () { return true; },
+    };
 
     assert.equal(this$1.currentState.pullStartY, null);
     // Since pullStartY is 0, the first move event sets
@@ -43,14 +43,14 @@ module( "_onTouchMove", function( hooks ) {
 
   test('second touchmove sets pullMoveY, _state and dist', function (assert) {
     var moveEvent1 = {
-      touches: [{screenY: 10}],
-      preventDefault: function() { return true; }
-    }
+      touches: [{ screenY: 10 }],
+      preventDefault: function () { return true; },
+    };
 
     var moveEvent2 = {
-      touches: [{screenY: 20}],
-      preventDefault: function() { return true; }
-    }
+      touches: [{ screenY: 20 }],
+      preventDefault: function () { return true; },
+    };
 
     this$1.onTouchMove(moveEvent1);
     this$1.onTouchMove(moveEvent2);
@@ -60,9 +60,9 @@ module( "_onTouchMove", function( hooks ) {
   });
 
   test('pull down and then back up', function (assert) {
-    var moveEvent1 = { touches: [{screenY: 10}], preventDefault: function() { return true; } }
-    var moveEvent2 = { touches: [{screenY: 20}], preventDefault: function() { return true; } }
-    var moveEvent3 = { touches: [{screenY: 15}], preventDefault: function() { return true; } }
+    var moveEvent1 = { touches: [{ screenY: 10 }], preventDefault: function () { return true; } };
+    var moveEvent2 = { touches: [{ screenY: 20 }], preventDefault: function () { return true; } };
+    var moveEvent3 = { touches: [{ screenY: 15 }], preventDefault: function () { return true; } };
 
     this$1.onTouchMove(moveEvent1);
     this$1.onTouchMove(moveEvent2);
@@ -72,8 +72,8 @@ module( "_onTouchMove", function( hooks ) {
   });
 
   test('pull past refresh dist', function (assert) {
-    var moveEvent1 = { touches: [{screenY: 10}], preventDefault: function() { return true; } }
-    var moveEvent2 = { touches: [{screenY: 125}], preventDefault: function() { return true; } }
+    var moveEvent1 = { touches: [{ screenY: 10 }], preventDefault: function () { return true; } };
+    var moveEvent2 = { touches: [{ screenY: 125 }], preventDefault: function () { return true; } };
 
     this$1.onTouchMove(moveEvent1);
     this$1.onTouchMove(moveEvent2);

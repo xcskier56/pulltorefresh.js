@@ -1,17 +1,22 @@
-/**
----
-_bundle: PullToRefresh
----
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+  typeof define === 'function' && define.amd ? define(factory) :
+  (global.PullToRefresh = factory());
+}(this, (function () {
+
+var _ptrMarkup = function(){return "<div class=\"__PREFIX__box\">\n  <div class=\"__PREFIX__content\">\n    <div class=\"__PREFIX__icon\"></div>\n    <div class=\"__PREFIX__text\"></div>\n  </div>\n</div>";};
+
+var _ptrStyles = function(){return ".__PREFIX__ptr {\n  box-shadow: inset 0 -3px 5px rgba(0, 0, 0, 0.12);\n  pointer-events: none;\n  font-size: 0.85em;\n  font-weight: bold;\n  top: 0;\n  height: 0;\n  transition: height 0.3s, min-height 0.3s;\n  text-align: center;\n  width: 100%;\n  overflow: hidden;\n  display: flex;\n  align-items: flex-end;\n  align-content: stretch;\n}\n.__PREFIX__box {\n  padding: 10px;\n  flex-basis: 100%;\n}\n.__PREFIX__pull {\n  transition: none;\n}\n.__PREFIX__text {\n  margin-top: .33em;\n  color: rgba(0, 0, 0, 0.3);\n}\n.__PREFIX__icon {\n  color: rgba(0, 0, 0, 0.3);\n  transition: transform .3s;\n}\n.__PREFIX__release .__PREFIX__icon {\n  transform: rotate(180deg);\n}";};
+
+/*
 */
 
-/* global env */
+var env = "prod";
+
 /* eslint-disable import/no-unresolved */
 
-import _ptrMarkup from './_markup';
-import _ptrStyles from './_styles';
-
-let _SETTINGS = {};
-const _defaults = {
+var _SETTINGS = {};
+var _defaults = {
   distThreshold: 60,
   distMax: 80,
   distReload: 50,
@@ -29,13 +34,13 @@ const _defaults = {
   refreshTimeout: 500,
   getMarkup: _ptrMarkup,
   getStyles: _ptrStyles,
-  onInit: () => {},
-  onRefresh: () => location.reload(),
-  resistanceFunction: t => Math.min(1, t / 2.5),
+  onInit: function () {},
+  onRefresh: function () { return location.reload(); },
+  resistanceFunction: function (t) { return Math.min(1, t / 2.5); },
 };
 
-let currentState = {};
-const currentStateDefaults = {
+var currentState = {};
+var currentStateDefaults = {
   pullStartY: null,
   pullMoveY: null,
   dist: 0,
@@ -48,18 +53,16 @@ const currentStateDefaults = {
 };
 
 function _update() {
-  const {
-    classPrefix,
-    ptrElement,
-    iconArrow,
-    iconRefreshing,
-    instructionsRefreshing,
-    instructionsPullToRefresh,
-    instructionsReleaseToRefresh,
-  } = _SETTINGS;
+  var classPrefix = _SETTINGS.classPrefix;
+  var ptrElement = _SETTINGS.ptrElement;
+  var iconArrow = _SETTINGS.iconArrow;
+  var iconRefreshing = _SETTINGS.iconRefreshing;
+  var instructionsRefreshing = _SETTINGS.instructionsRefreshing;
+  var instructionsPullToRefresh = _SETTINGS.instructionsPullToRefresh;
+  var instructionsReleaseToRefresh = _SETTINGS.instructionsReleaseToRefresh;
 
-  const iconEl = ptrElement.querySelector(`.${classPrefix}icon`);
-  const textEl = ptrElement.querySelector(`.${classPrefix}text`);
+  var iconEl = ptrElement.querySelector(("." + classPrefix + "icon"));
+  var textEl = ptrElement.querySelector(("." + classPrefix + "text"));
 
   if (currentState._state === 'refreshing') {
     iconEl.innerHTML = iconRefreshing;
@@ -82,16 +85,18 @@ function _update() {
 
 function _setupEvents() {
   function onReset() {
-    const { cssProp, ptrElement, classPrefix } = _SETTINGS;
+    var cssProp = _SETTINGS.cssProp;
+    var ptrElement = _SETTINGS.ptrElement;
+    var classPrefix = _SETTINGS.classPrefix;
 
-    ptrElement.classList.remove(`${classPrefix}refresh`);
+    ptrElement.classList.remove((classPrefix + "refresh"));
     ptrElement.style[cssProp] = '0px';
 
     currentState._state = 'pending';
   }
 
   function _onTouchStart(e) {
-    const { triggerElement } = _SETTINGS;
+    var triggerElement = _SETTINGS.triggerElement;
 
     if (!window.scrollY) {
       currentState.pullStartY = e.touches[0].screenY;
@@ -109,9 +114,12 @@ function _setupEvents() {
   }
 
   function _onTouchMove(e) {
-    const {
-      ptrElement, resistanceFunction, distMax, distThreshold, cssProp, classPrefix,
-    } = _SETTINGS;
+    var ptrElement = _SETTINGS.ptrElement;
+    var resistanceFunction = _SETTINGS.resistanceFunction;
+    var distMax = _SETTINGS.distMax;
+    var distThreshold = _SETTINGS.distThreshold;
+    var cssProp = _SETTINGS.cssProp;
+    var classPrefix = _SETTINGS.classPrefix;
 
     if (!currentState.pullStartY) {
       if (!window.scrollY) {
@@ -130,7 +138,7 @@ function _setupEvents() {
     }
 
     if (currentState._state === 'pending') {
-      ptrElement.classList.add(`${classPrefix}pull`);
+      ptrElement.classList.add((classPrefix + "pull"));
       currentState._state = 'pulling';
       _update();
     }
@@ -142,19 +150,19 @@ function _setupEvents() {
     if (currentState.dist > 0) {
       e.preventDefault();
 
-      ptrElement.style[cssProp] = `${currentState.distResisted}px`;
+      ptrElement.style[cssProp] = (currentState.distResisted) + "px";
 
       currentState.distResisted = resistanceFunction(currentState.dist / distThreshold)
         * Math.min(distMax, currentState.dist);
 
       if (currentState._state === 'pulling' && currentState.distResisted > distThreshold) {
-        ptrElement.classList.add(`${classPrefix}release`);
+        ptrElement.classList.add((classPrefix + "release"));
         currentState._state = 'releasing';
         _update();
       }
 
       if (currentState._state === 'releasing' && currentState.distResisted < distThreshold) {
-        ptrElement.classList.remove(`${classPrefix}release`);
+        ptrElement.classList.remove((classPrefix + "release"));
         currentState._state = 'pulling';
         _update();
       }
@@ -162,21 +170,25 @@ function _setupEvents() {
   }
 
   function _onTouchEnd() {
-    const {
-      ptrElement, onRefresh, refreshTimeout, distThreshold, distReload, cssProp, classPrefix,
-    } = _SETTINGS;
+    var ptrElement = _SETTINGS.ptrElement;
+    var onRefresh = _SETTINGS.onRefresh;
+    var refreshTimeout = _SETTINGS.refreshTimeout;
+    var distThreshold = _SETTINGS.distThreshold;
+    var distReload = _SETTINGS.distReload;
+    var cssProp = _SETTINGS.cssProp;
+    var classPrefix = _SETTINGS.classPrefix;
 
     if (currentState._state === 'releasing' && currentState.distResisted > distThreshold) {
       currentState._state = 'refreshing';
 
-      ptrElement.style[cssProp] = `${distReload}px`;
-      ptrElement.classList.add(`${classPrefix}refresh`);
+      ptrElement.style[cssProp] = distReload + "px";
+      ptrElement.classList.add((classPrefix + "refresh"));
 
-      currentState._timeout = setTimeout(() => {
-        const retval = onRefresh(onReset);
+      currentState._timeout = setTimeout(function () {
+        var retval = onRefresh(onReset);
 
         if (retval && typeof retval.then === 'function') {
-          retval.then(() => onReset());
+          retval.then(function () { return onReset(); });
         }
 
         if (!retval && !onRefresh.length) {
@@ -195,8 +207,8 @@ function _setupEvents() {
 
     _update();
 
-    ptrElement.classList.remove(`${classPrefix}release`);
-    ptrElement.classList.remove(`${classPrefix}pull`);
+    ptrElement.classList.remove((classPrefix + "release"));
+    ptrElement.classList.remove((classPrefix + "pull"));
 
     currentState.pullStartY = currentState.pullMoveY = null;
     currentState.dist = currentState.distResisted = 0;
@@ -215,12 +227,14 @@ function _setupEvents() {
 }
 
 function _run() {
-  const {
-    mainElement, getMarkup, getStyles, classPrefix, onInit,
-  } = _SETTINGS;
+  var mainElement = _SETTINGS.mainElement;
+  var getMarkup = _SETTINGS.getMarkup;
+  var getStyles = _SETTINGS.getStyles;
+  var classPrefix = _SETTINGS.classPrefix;
+  var onInit = _SETTINGS.onInit;
 
-  if (!document.querySelector(`.${classPrefix}ptr`)) {
-    const ptr = document.createElement('div');
+  if (!document.querySelector(("." + classPrefix + "ptr"))) {
+    var ptr = document.createElement('div');
 
     if (mainElement !== document.body) {
       mainElement.parentNode.insertBefore(ptr, mainElement);
@@ -228,7 +242,7 @@ function _run() {
       document.body.insertBefore(ptr, document.body.firstChild);
     }
 
-    ptr.classList.add(`${classPrefix}ptr`);
+    ptr.classList.add((classPrefix + "ptr"));
     ptr.innerHTML = getMarkup()
       .replace(/__PREFIX__/g, classPrefix);
 
@@ -237,7 +251,7 @@ function _run() {
 
   // If we call init multiple times, we don't want to create
   // multiple style nodes
-  let styleEl;
+  var styleEl;
   if (!document.querySelector('#pull-to-refresh-js-style')) {
     styleEl = document.createElement('style');
     styleEl.setAttribute('id', 'pull-to-refresh-js-style');
@@ -261,16 +275,18 @@ function _run() {
   };
 }
 
-export default {
-  init(options = {}) {
-    let handlers;
+var pulltorefresh = {
+  init: function init(options) {
+    if ( options === void 0 ) options = {};
+
+    var handlers;
     // Reset all state each time calling init;
-    Object.keys(_defaults).forEach((key) => {
+    Object.keys(_defaults).forEach(function (key) {
       _SETTINGS[key] = options[key] || _defaults[key];
     });
 
     // Reset all state each time calling init;
-    Object.keys(currentStateDefaults).forEach((key) => {
+    Object.keys(currentStateDefaults).forEach(function (key) {
       currentState[key] = currentStateDefaults[key];
     });
 
@@ -291,9 +307,11 @@ export default {
       currentState._setup = true;
     }
 
-    let { styleNode, ptrElement } = _run();
+    var ref = _run();
+    var styleNode = ref.styleNode;
+    var ptrElement = ref.ptrElement;
 
-    const toReturn = {};
+    var toReturn = {};
     if (env === 'dev' || env === 'test') {
       toReturn.handlers = handlers;
       toReturn.settings = _SETTINGS;
@@ -323,3 +341,7 @@ export default {
     return toReturn;
   },
 };
+
+return pulltorefresh;
+
+})));

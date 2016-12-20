@@ -4,22 +4,24 @@
   "description": "Pull To Refresh",
   "main": "dist/pulltorefresh.js",
   "scripts": {
-    "dev": "tarima -ws",
+    "dev": "tarima -ws --globals env='dev'",
+    "dev:spec": "testem",
+    "dev:build": "tarima -f --globals env='dev'",
     "lint": "eslint src",
-    "build": "tarima -f",
-    "test": "testem ci",
-    "dev_test": "testem"
+    "build": "tarima -f --globals env='prod' --config PROD",
+    "test": "tarima -f --globals env='dev' && yarn run lint && testem ci"
   },
   "author": "Rafael Soto",
   "license": "MIT",
   "tarima": {
     "public": ".",
-    "dest": ".",
+    "dest": "./dist",
     "cacheFile": "dist/build.json",
     "rename": [
-      "**/*.css:{filepath/1}/{filename}.css",
-      "**/*.html:{filepath/1}/{filename}.html",
-      "**/src/*.js:{filepath/1}/dist/{filename}.js",
+      "**/*.css:../{filepath/1}/{filename}.css",
+      "**/*.html:../{filepath/1}/{filename}.html",
+      "**/src/tests/**/*:../tests/{filename}.{extname}",
+      "**/src/*.js:{filepath/1}/{filename}.js",
       "**/tests/*.js:/tests/{filename}.js",
       "**/tests/index.html:/tests/{filename}.html"
     ],

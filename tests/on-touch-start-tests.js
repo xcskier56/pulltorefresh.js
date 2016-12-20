@@ -1,10 +1,10 @@
+
+var this$1 = this;
 var test = QUnit.test;
 var module = QUnit.module;
 
-module( "_onTouchStart", function( hooks ) {
-  var this$1 = this;
-
-  hooks.beforeEach( function (assert) {
+module('_onTouchStart', function (hooks) {
+  hooks.beforeEach(function (assert) {
     this$1.ptrResult = PullToRefresh.init({ mainElement: '#ptr-trigger-element', triggerElement: '#ptr-trigger-element' });
     this$1.onTouchStart = this$1.ptrResult.handlers.onTouchStart;
     this$1.currentState = this$1.ptrResult.currentState;
@@ -13,7 +13,7 @@ module( "_onTouchStart", function( hooks ) {
     assert.equal(this$1.currentState._enable, false, 'it starts disabled');
   });
 
-  hooks.afterEach( function (assert) {
+  hooks.afterEach(function (assert) {
     this$1.ptrResult.destroy();
 
     assert.equal(document.querySelectorAll('.ptr--ptr').length, 0, 'destroy removes the ptr element');
@@ -25,11 +25,11 @@ module( "_onTouchStart", function( hooks ) {
   });
 
   test('sets pullStartY', function (assert) {
-    target = document.querySelector('#touch-element');
+    var target = document.querySelector('#touch-element');
     var event = {
-      touches: [{screenY: 10}],
-      target: target
-    }
+      touches: [{ screenY: 10 }],
+      target: target,
+    };
 
     assert.equal(this$1.currentState.pullStartY, null);
     this$1.onTouchStart(event);
@@ -37,11 +37,11 @@ module( "_onTouchStart", function( hooks ) {
   });
 
   test('enable works with child of target', function (assert) {
-    target = document.querySelector('#touch-element');
+    var target = document.querySelector('#touch-element');
     var event = {
-      touches: [{screenY: 0}],
-      target: target
-    }
+      touches: [{ screenY: 0 }],
+      target: target,
+    };
 
     assert.equal(this$1.currentState._enable, false, 'it starts disabled');
     this$1.onTouchStart(event);
@@ -49,14 +49,14 @@ module( "_onTouchStart", function( hooks ) {
   });
 
   test('enable does not enable when target is not child', function (assert) {
-    target = document.querySelector('#non-child');
+    var target = document.querySelector('#non-child');
     var event = {
-      touches: [{screenY: 0}],
-      target: target
-    }
+      touches: [{ screenY: 0 }],
+      target: target,
+    };
 
     assert.equal(this$1.currentState._enable, false, 'it starts disabled');
     this$1.onTouchStart(event);
     assert.equal(this$1.currentState._enable, false, 'it stays disabled');
-  })
-})
+  });
+});
